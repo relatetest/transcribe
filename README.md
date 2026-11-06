@@ -14,30 +14,7 @@
   <img src="assets/readme/facts-light.svg" width="100%" alt="статус: пробный · работает: локально · видеокарта: NVIDIA 6 ГБ или CPU · на диске: ≈ 15 ГБ">
 </picture></p>
 
-<p>
-<a href="#установка"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/btn-install-dark.svg">
-  <img src="assets/readme/btn-install-light.svg" height="44" alt="установить">
-</picture></a>&nbsp;
-<a href="#как-пользоваться"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/btn-use-dark.svg">
-  <img src="assets/readme/btn-use-light.svg" height="44" alt="как пользоваться">
-</picture></a>&nbsp;
-<a href="#как-устроено"><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/btn-how-dark.svg">
-  <img src="assets/readme/btn-how-light.svg" height="44" alt="как устроено">
-</picture></a>
-</p>
-
-<p><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/facts-dark.svg">
-  <img src="assets/readme/facts-light.svg" width="100%" alt="статус: пробный · работает: локально · видеокарта: NVIDIA 6 ГБ или CPU · на диске: ≈ 15 ГБ">
-</picture></p>
-
 Расшифровывает созвоны и видео на своём компьютере, без облака. Каждый фрагмент записи распознают две разные модели, спикеры подписываются S1, S2…, а места, где модели разошлись или потеряли термин, отмечаются ⚑: их нужно прослушать, прежде чем цитировать. Для дизайнеров, которым нужен текст созвона, интервью или закадрового голоса на английском или русском.
-
-> [!NOTE]
-> Звук и текст никуда не отправляются. Из сети при первом запуске скачиваются только веса моделей.
 
 > [!NOTE]
 > Звук и текст никуда не отправляются. Из сети при первом запуске скачиваются только веса моделей.
@@ -157,11 +134,6 @@ setx HF_HOME D:\hf-cache
   <img src="assets/readme/flow-light.svg" width="100%" alt="Запись → Речь → Спикеры → Две модели → transcript.md">
 </picture></p>
 
-<p><picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/flow-dark.svg">
-  <img src="assets/readme/flow-light.svg" width="100%" alt="Запись → Речь → Спикеры → Две модели → transcript.md">
-</picture></p>
-
 Шаги одного запуска:
 
 1. ffmpeg достаёт первую звуковую дорожку и переводит её в 16 кГц моно.
@@ -252,14 +224,9 @@ git push origin v1.0.0
 
 Подробно — в [publishing.md](https://github.com/relatetest/hub/blob/main/docs/publishing.md).
 
-</details>
-
 <br>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/footer-dark.svg">
-  <img src="assets/readme/footer-light.svg" width="100%" alt="relate — design studio for the new internet">
-</picture>
+</details>
 
 </details>
 
