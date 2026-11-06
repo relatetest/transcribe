@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="124" viewBox="0 0 1200 124" role="img" aria-label="статус: пробный · работает: локально · видеокарта: NVIDIA 6 ГБ или CPU · на диске: ≈ 15 ГБ">
+<rect width="1200" height="124" rx="20" fill="#f4f4f5"/>
+<text x="36.0" y="50" font-family="Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="19" letter-spacing="-0.11" fill="#111111" fill-opacity="0.56" text-anchor="start">статус</text>
+<text x="36.0" y="92" font-family="Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="28" letter-spacing="-0.42" fill="#111111" text-anchor="start">пробный</text>
+<path d="M300 28V96" stroke="#111111" stroke-opacity=".1"/>
+<text x="336.0" y="50" font-family="Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="19" letter-spacing="-0.11" fill="#111111" fill-opacity="0.56" text-anchor="start">работает</text>
+<text x="336.0" y="92" font-family="Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="28" letter-spacing="-0.42" fill="#111111" text-anchor="start">локально</text>
+<path d="M600 28V96" stroke="#111111" stroke-opacity=".1"/>
+<text x="636.0" y="50" font-family="Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="19" letter-spacing="-0.11" fill="#111111" fill-opacity="0.56" text-anchor="start">видеокарта</text>
+<text x="636.0" y="92" font-family="Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="21" letter-spacing="-0.32" fill="#111111" text-anchor="start">NVIDIA 6 ГБ или CPU</text>
+<path d="M900 28V96" stroke="#111111" stroke-opacity=".1"/>
+<text x="936.0" y="50" font-family="Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="19" letter-spacing="-0.11" fill="#111111" fill-opacity="0.56" text-anchor="start">на диске</text>
+<text x="936.0" y="92" font-family="Inter, 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="28" letter-spacing="-0.42" fill="#111111" text-anchor="start">≈ 15 ГБ</text>
+</svg>

@@ -1,8 +1,32 @@
-# transcribe
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/hero-dark.svg">
+  <img src="assets/readme/hero-light.svg" width="100%" alt="transcribe — локальная расшифровка созвонов двумя моделями с отметками спорных мест">
+</picture>
+
+<p>
+<a href="#установка"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/btn-install-dark.svg">
+  <img src="assets/readme/btn-install-light.svg" height="44" alt="установить">
+</picture></a>&nbsp;
+<a href="#как-пользоваться"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/btn-use-dark.svg">
+  <img src="assets/readme/btn-use-light.svg" height="44" alt="как пользоваться">
+</picture></a>&nbsp;
+<a href="#как-устроено"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/btn-how-dark.svg">
+  <img src="assets/readme/btn-how-light.svg" height="44" alt="как устроено">
+</picture></a>
+</p>
+
+<p><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/facts-dark.svg">
+  <img src="assets/readme/facts-light.svg" width="100%" alt="статус: пробный · работает: локально · видеокарта: NVIDIA 6 ГБ или CPU · на диске: ≈ 15 ГБ">
+</picture></p>
 
 Расшифровывает созвоны и видео на своём компьютере, без облака. Каждый фрагмент записи распознают две разные модели, спикеры подписываются S1, S2…, а места, где модели разошлись или потеряли термин, отмечаются ⚑: их нужно прослушать, прежде чем цитировать. Для дизайнеров, которым нужен текст созвона, интервью или закадрового голоса на английском или русском.
 
-**Статус:** пробный · **Владелец:** @Piwqust · **Заместитель:** не назначен
+> [!NOTE]
+> Звук и текст никуда не отправляются. Из сети при первом запуске скачиваются только веса моделей.
 
 ## Установка
 
@@ -114,6 +138,11 @@ setx HF_HOME D:\hf-cache
 
 ## Как устроено
 
+<p><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/flow-dark.svg">
+  <img src="assets/readme/flow-light.svg" width="100%" alt="Запись → Речь → Спикеры → Две модели → transcript.md">
+</picture></p>
+
 Шаги одного запуска:
 
 1. ffmpeg достаёт первую звуковую дорожку и переводит её в 16 кГц моно.
@@ -154,6 +183,9 @@ setx HF_HOME D:\hf-cache
 
 ## Разработка
 
+<details>
+<summary>сборка, проверки и тесты</summary>
+
 Логика нарезки, сравнения и записи файлов (`chunks.py`, `compare.py`, `report.py`, `config.py`, `cli.py`) написана на стандартной библиотеке Python, поэтому тесты не требуют моделей и видеокарты:
 
 ```bash
@@ -170,7 +202,12 @@ python -I -m unittest discover -s tests -t .
 
 Сменить модель: впишите её в `transcribe/models.json` с `revision` — коммитом на Hugging Face (вкладка **Files and versions → History**) — и проверьте на записи. У GigaAM вместо коммита — SHA-256 файлов из `~/.cache/gigaam`. Поддерживаются движки `qwen3-asr`, `granite-speech`, `gigaam` и `nemotron-diarization`. Новая версия пакета — в `pyproject.toml` и `requirements.txt` одновременно, обе точные.
 
+</details>
+
 ## Релиз и публикация
+
+<details>
+<summary>версия, тег и запись в каталоге</summary>
 
 1. Запишите изменения в `CHANGELOG.md`.
 2. Поставьте тег и отправьте его:
@@ -187,3 +224,12 @@ git push origin v1.0.0
 4. Обновите тег в каталоге: форма [«Опубликовать или обновить»](https://github.com/relatetest/hub/issues/new?template=publish.yml).
 
 Подробно — в [publishing.md](https://github.com/relatetest/hub/blob/main/docs/publishing.md).
+
+</details>
+
+<br>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/readme/footer-dark.svg">
+  <img src="assets/readme/footer-light.svg" width="100%" alt="relate — design studio for the new internet">
+</picture>
