@@ -34,7 +34,7 @@ jobs:
           fi
 
       # No GPU and no models here: these tests need only the standard library.
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
