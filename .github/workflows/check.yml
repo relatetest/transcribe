@@ -1,0 +1,59 @@
+name: check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    # The template itself keeps its placeholders on purpose.
+    if: github.repository != 'relatetest/template-tool'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: No template placeholders left
+        run: |
+          if grep -n '{{' README.md AGENTS.md CHANGELOG.md .claude/CLAUDE.md; then
+            echo "Fill every {{…}} listed above."
+            exit 1
+          fi
+
+      - name: No secrets-like files
+        run: |
+          found=$(git ls-files | grep -E '(^|/)(\.env(\..*)?|id_rsa.*|.*\.pem)$' || true)
+          if [ -n "$found" ]; then
+            echo "Remove these files from git:"
+            echo "$found"
+            exit 1
+          fi
+
+      # No GPU and no models here: these tests need only the standard library.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: No recordings or transcripts in git
+        run: |
+          found=$(git ls-files | grep -iE '\.(wav|mp3|m4a|ogg|opus|flac|mov|mp4|mkv|webm)$|(^|/)transcript\.(md|json)$' || true)
+          if [ -n "$found" ]; then
+            echo "Calls are confidential. Remove these files from git:"
+            echo "$found"
+            exit 1
+          fi
+
+      - name: Offline tests (chunks, flags, terms, files, CLI)
+        run: python -I -m unittest discover -s tests -t . -v
+
+      - name: Help works without the models
+        run: python -m transcribe --help
+
+      - name: Setup scripts parse
+        run: |
+          bash -n scripts/setup.sh
+          pwsh -NoProfile -Command '$e = $null; [void][System.Management.Automation.Language.Parser]::ParseFile("scripts/setup.ps1", [ref]$null, [ref]$e); if ($e) { $e; exit 1 }'

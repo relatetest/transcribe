@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools==78.1.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "transcribe"
+version = "0.1.0"
+description = "Speech to text for studio calls and videos: two models on every chunk, speakers, places to listen to"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "LicenseRef-Proprietary"
+license-files = ["LICENSE"]
+# Direct dependencies at the versions the tool was checked with. requirements.txt pins the whole tree;
+# scripts/setup.* install torch from the PyTorch CUDA index first (torch==2.11.0 matches 2.11.0+cu128).
+dependencies = [
+  "accelerate==1.15.0",
+  "gigaam @ git+https://github.com/salute-developers/GigaAM.git@7447938d791c4f3e643386ee22c33777004293a5",
+  "huggingface-hub==2.4.0",
+  "librosa==1.0.0",
+  "numpy==2.5.4",
+  "silero-vad==6.2.3",
+  "soundfile==0.14.0",
+  "torch==2.11.0",
+  "torchaudio==2.11.0",
+  "transformers==5.22.1",
+]
+
+[project.scripts]
+transcribe = "transcribe.cli:main"
+
+[tool.setuptools]
+packages = ["transcribe"]
+
+[tool.setuptools.package-data]
+transcribe = ["models.json"]

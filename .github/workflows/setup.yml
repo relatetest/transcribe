@@ -1,0 +1,43 @@
+name: setup
+
+# Runs once in a repo created with "Use this template": puts the repo name and its creator
+# into README.md, AGENTS.md and .claude/CLAUDE.md. Later runs find nothing to replace and stop.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  setup:
+    if: github.repository != 'relatetest/template-tool'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fill name and owner
+        id: fill
+        env:
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          if ! grep -q '{{name}}' README.md; then
+            echo "done=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          name="${REPO#*/}"
+          sed -i "s/{{name}}/${name}/g" README.md AGENTS.md .claude/CLAUDE.md
+          sed -i "s/{{@login}}/@${ACTOR}/g" README.md
+          echo "done=true" >> "$GITHUB_OUTPUT"
+
+      - name: Commit
+        if: steps.fill.outputs.done == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md AGENTS.md .claude/CLAUDE.md
+          git commit -m "chore: set up from template"
+          git push

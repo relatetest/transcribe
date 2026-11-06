@@ -1,0 +1,66 @@
+{
+ "about": "The speech-to-text stack of this tool, chosen per language. Change models here or pass your own file with --config. Every Hugging Face model is pinned to a commit (revision); GigaAM is pinned by the SHA-256 of its files.",
+ "checked": "2026-11-04 against the Hugging Face Open ASR Leaderboard (English, 2026-11-02), Artificial Analysis AA-WER, a 300-recording Russian benchmark (TypeWhisper), a Russian meeting benchmark (Habr, 2026-10-17) and the model cards",
+ "calibration": "a 14:40 English studio call: 108 chunks split at speaker changes, 52 flagged with the differing words, the flags fell on the real errors; 4 speakers kept apart, including a voice-over; the context list echoed once on a music-only chunk (caught as echo); both models agreed on two wrong words, so agreement is not proof. Russian: on GigaAM's public samples --lang auto picked ru, GigaAM was exact where Qwen3-ASR made three errors, and on a 71 s sample the flags fell on the real error spots",
+ "review_every": "3 months: re-read the leaderboards, update the models and their revisions here",
+ "default_language": "en",
+ "language_detection": "qwen3-asr",
+ "diarization": "nemotron-diarization",
+ "languages": {
+  "en": {
+   "name": "English",
+   "primary": "qwen3-asr",
+   "crosscheck": "granite-speech"
+  },
+  "ru": {
+   "name": "Russian",
+   "primary": "gigaam",
+   "crosscheck": "qwen3-asr"
+  }
+ },
+ "models": {
+  "qwen3-asr": {
+   "engine": "qwen3-asr",
+   "repo": "Qwen/Qwen3-ASR-1.7B-hf",
+   "revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
+   "license": "Apache-2.0",
+   "download_gb": 4.09,
+   "why": "English primary: the most accurate open English model that fits a 16 GB GPU shared with After Effects (Open ASR average WER 6.14, second among open models); free-form context biasing. Russian cross-check: writes Latin terms in Latin and takes the context list"
+  },
+  "granite-speech": {
+   "engine": "granite-speech",
+   "repo": "ibm-granite/granite-speech-5.0-2b",
+   "revision": "981601698173ac1a71fe6838b127d8e54f8cf682",
+   "license": "Apache-2.0",
+   "download_gb": 4.63,
+   "why": "English cross-check: another architecture and training set (Open ASR 6.59, released 2026-10-20) with keyword biasing; where the two disagree, the chunk is flagged for listening"
+  },
+  "gigaam": {
+   "engine": "gigaam",
+   "version": "v3_e2e_rnnt",
+   "source": "https://cdn.chatwm.opensmodel.sberdevices.ru/GigaAM (the gigaam package's own download)",
+   "sha256": {
+    "v3_e2e_rnnt.ckpt": "f60c62fe45902d967000770a12f260de7c5ac4d4b8e5e852f1df8c548e3958b5",
+    "v3_e2e_rnnt_tokenizer.model": "828c12c991019eef952a960661f25a92d6ad279591e2ea466b4aeddf1d20a18a"
+   },
+   "license": "MIT",
+   "download_gb": 0.45,
+   "why": "Russian primary: 4.3 % WER against Qwen3-ASR's 8.9 % and Whisper large-v3's 5.2 % on 300 Russian recordings; 14.8 % against 30.1 % on ordinary meetings; punctuation and casing built in; 240M params",
+   "weak": "English names and terms inside Russian speech come out phonetically in Cyrillic («Фигма», «афтер эффектс»): the context list fixes them only through the cross-check"
+  },
+  "nemotron-diarization": {
+   "engine": "nemotron-diarization",
+   "repo": "nvidia/Nemotron-3-Diarization",
+   "revision": "f667ed73aee57d40cc39428eb768b4fd87a0a29e",
+   "license": "see the model card",
+   "download_gb": 0.4,
+   "why": "who spoke when, up to 8 speakers, open weights (2026-09-23), 100M params; lower DER than pyannote Community-1 in a 132-recording comparison (English 10.3 % vs 15.2 %, Russian 4.4 %)"
+  }
+ },
+ "not_used": {
+  "whisper / faster-whisper": "whisper-large-v3 is 41st on the Open ASR Leaderboard (2026-11) and behind GigaAM on Russian",
+  "nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B": "the best open model (2026-10-28; speakers and context lists built in) but needs 32 GB of VRAM or more, or a community 2-bit GGUF that is tight on 16 GB; revisit when either changes",
+  "cohere-transcribe-03-2026": "no Russian, no timestamps",
+  "GigaAM multilingual": "moderate on English by its own README; the v3 Russian line is stronger on Russian"
+ }
+}
