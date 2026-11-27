@@ -21,6 +21,32 @@
 
 ## Установка
 
+### Одним файлом
+
+Установщик сам проверит git, ffmpeg и uv, поставит недостающее, скачает transcribe в папку `transcribe` в домашней папке и соберёт окружение Python. Доступ к GitHub не нужен. Windows, PowerShell:
+
+```powershell
+irm https://raw.githubusercontent.com/relatetest/transcribe/v0.3.0/install.ps1 -OutFile install.ps1; powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1
+```
+
+macOS и Linux:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/relatetest/transcribe/v0.3.0/install.sh -o install.sh && bash install.sh
+```
+
+Команда сначала сохраняет файл рядом, потом запускает его: перед запуском его можно прочитать. Сам файл `install.ps1` или `install.sh` можно и переслать: он один, остальное скачает сам. Нужно около 16 ГБ на диске; установка идёт несколько минут, веса моделей (10,7 ГБ) скачаются при первой расшифровке.
+
+| Параметр | Что делает |
+|---|---|
+| `-Dir путь`, `--dir путь` | Поставить в другую папку |
+| `-Cpu`, `--cpu` | Вариант для процессора. Без видеокарты NVIDIA выбирается сам |
+| `-NoTools`, `--no-tools` | Ничего не ставить через winget или Homebrew: остановиться и назвать, чего не хватает |
+
+Недостающие git, ffmpeg и uv установщик ставит через winget (Windows) или Homebrew (macOS) и принимает при этом их лицензионные соглашения. На Linux он только называет, чего не хватает.
+
+### Вручную
+
 Что нужно заранее:
 
 - Python 3.12 или [uv](https://docs.astral.sh/uv/) (с uv установка быстрее, Python он поставит сам);
@@ -87,14 +113,14 @@ setx HF_HOME D:\hf-cache
 
 ### Обновление
 
-Новая версия ставится в ту же папку. Тег возьмите из колонки «Версия» в [каталоге](https://github.com/relatetest/hub#readme). Из папки репозитория:
+Новая версия ставится в ту же папку. Проще всего скачать установщик нового релиза со страницы [Releases](https://github.com/relatetest/transcribe/releases) и запустить его: он переключит папку на свой тег и обновит пакеты. То же вручную, из папки репозитория (тег — на той же странице):
 
 ```bash
 git fetch --tags
 ```
 
 ```bash
-git checkout v0.2.0
+git checkout v0.3.0
 ```
 
 Затем запустите скрипт установки ещё раз: он доведёт пакеты в `.venv` до версий этого релиза. Windows:
@@ -215,7 +241,7 @@ bash scripts/setup.sh
 
 - **Читает** только файл записи и `transcribe/models.json` (или файл из `--config`). С `--reflag` — только `transcript.json` в папке `--out`.
 - **Пишет** `transcript.md` и `transcript.json` в папку `--out`. Звук 16 кГц и нарезанные фрагменты лежат во временной папке системы и удаляются в конце запуска, в том числе после ошибки. В `transcript.json` записано только имя исходного файла, без пути.
-- **Сеть.** Звук и текст никуда не отправляются. При первом запуске скачиваются веса: с `huggingface.co` (Qwen3-ASR, Granite Speech, Nemotron) в кэш Hugging Face — `HF_HOME`, по умолчанию `~/.cache/huggingface/hub` (на Windows `%USERPROFILE%\.cache\huggingface\hub`), и с `cdn.chatwm.opensmodel.sberdevices.ru` (GigaAM) в `~/.cache/gigaam`. Когда веса скачаны, работает без сети; запретить сеть явно можно переменной `HF_HUB_OFFLINE=1`. Скрипты установки ходят в PyPI, `download.pytorch.org` и на GitHub за пакетом `gigaam`.
+- **Сеть.** Звук и текст никуда не отправляются. При первом запуске скачиваются веса: с `huggingface.co` (Qwen3-ASR, Granite Speech, Nemotron) в кэш Hugging Face — `HF_HOME`, по умолчанию `~/.cache/huggingface/hub` (на Windows `%USERPROFILE%\.cache\huggingface\hub`), и с `cdn.chatwm.opensmodel.sberdevices.ru` (GigaAM) в `~/.cache/gigaam`. Когда веса скачаны, работает без сети; запретить сеть явно можно переменной `HF_HUB_OFFLINE=1`. Скрипты установки ходят в PyPI, `download.pytorch.org` и на GitHub за пакетом `gigaam`. Установщик `install.ps1` / `install.sh` ещё скачивает с GitHub этот репозиторий и, если не хватает git, ffmpeg или uv, ставит их через winget или Homebrew.
 - **Код из сети во время работы не скачивается.** Модели Hugging Face — это веса `safetensors` и настройки JSON, без своего кода (`trust_remote_code` не используется), каждая на закреплённом коммите. Исключение, которое стоит знать: файл GigaAM — это `pickle` для `torch.load`, а настройки внутри него создают объекты по именам, то есть файл может исполнить код. Поэтому перед загрузкой transcribe сверяет его SHA-256 с `models.json` и не запускает изменённый файл.
 - Работает на Windows, macOS и Linux. Проверен на Windows 11 с NVIDIA. На macOS нет CUDA: модели работают на процессоре, там инструмент не проверялся.
 
@@ -255,7 +281,7 @@ python -I -m unittest discover -s tests -t .
 <details>
 <summary>версия, тег и запись в каталоге</summary>
 
-1. Запишите изменения в `CHANGELOG.md`.
+1. Поднимите версию в `transcribe/__init__.py`, `pyproject.toml`, `install.ps1`, `install.sh` и в командах раздела «Установка»: тест `tests/test_install.py` проверяет, что они совпадают. Запишите изменения в `CHANGELOG.md`.
 2. Поставьте тег и отправьте его:
 
 ```bash
@@ -267,9 +293,7 @@ git push origin v1.0.0
 ```
 
 3. Создайте GitHub Release из тега с текстом из `CHANGELOG.md`.
-4. Обновите тег в каталоге: форма [«Опубликовать или обновить»](https://github.com/relatetest/hub/issues/new?template=publish.yml).
-
-Подробно — в [publishing.md](https://github.com/relatetest/hub/blob/main/docs/publishing.md).
+4. Обновите тег в каталоге студии: форма «Опубликовать или обновить» в `relatetest/hub`. Каталог закрытый, он доступен только участникам организации.
 
 <br>
 

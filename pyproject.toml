@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "transcribe"
-version = "0.2.0"
+version = "0.3.0"
 description = "Speech to text for studio calls and videos: two models on every chunk, speakers, places to listen to"
 readme = "README.md"
 requires-python = ">=3.12"
-license = "LicenseRef-Proprietary"
+license = "MIT"
 license-files = ["LICENSE"]
 # Direct dependencies at the versions the tool was checked with. requirements.txt pins the whole tree;
 # scripts/setup.* install torch from the PyTorch CUDA index first (torch==2.11.0 matches 2.11.0+cu128).
