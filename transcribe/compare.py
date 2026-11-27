@@ -97,10 +97,14 @@ def pick_language(detected, languages, default):
     """The language most chunks were detected in, when it is more than half of them; otherwise the default.
 
     detected: language names as the detector wrote them («English», «Russian»); languages: {code: {"name": ...}}.
+    A language without «name» is one the detector cannot name: it is never picked, and its two-letter code is
+    not searched for inside other names («ka» is inside «kazakh»).
     """
     best, best_n = default, 0
     for code, spec in languages.items():
-        name = spec.get("name", code).lower()
+        name = (spec.get("name") or "").lower()
+        if not name:
+            continue
         n = sum(name in (d or "").lower() for d in detected)
         if n > best_n:
             best, best_n = code, n

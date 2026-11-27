@@ -103,6 +103,11 @@ class Language(unittest.TestCase):
         self.assertEqual(pick_language(["", "", "Russian"], LANGS, "en"), "en")
         self.assertEqual(pick_language([], LANGS, "en"), "en")
 
+    def test_a_language_without_a_name_is_never_detected(self):
+        langs = dict(LANGS, ka={"primary": "x"}, de={"name": "German"})
+        self.assertEqual(pick_language(["Kazakh"] * 6, langs, "en"), "en")  # «ka» is inside «kazakh»
+        self.assertEqual(pick_language(["German"] * 5 + ["English"], langs, "en"), "de")
+
 
 class Terms(unittest.TestCase):
     def test_parse(self):

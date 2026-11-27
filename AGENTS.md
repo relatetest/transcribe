@@ -2,7 +2,7 @@
 
 This repo is a tool in the Relate Studio org. It reaches the team through the studio catalog `relatetest/hub`, pinned to a release tag.
 
-Local speech-to-text for calls and videos: ffmpeg → Silero VAD chunks (≤ 22 s, cut at pauses) → Nemotron diarization → two ASR models per chunk (English: Qwen3-ASR + Granite Speech; Russian: GigaAM v3 + Qwen3-ASR) → `transcript.md` + `transcript.json` with disagreements flagged for listening.
+Local speech-to-text for calls and videos: ffmpeg → Silero VAD chunks (≤ 22 s, cut at pauses) → Nemotron diarization → two ASR models per chunk (English: Qwen3-ASR + Granite Speech; Russian: GigaAM Multilingual-v2 + Qwen3-ASR; 19 more languages through GigaAM Multilingual-v2, six of them with Qwen3-ASR as the cross-check) → `transcript.md` + `transcript.json` with disagreements flagged for listening.
 
 ## Rules
 

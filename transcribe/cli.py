@@ -47,7 +47,8 @@ def build_parser():
     ap.add_argument("--version", action="version", version="transcribe " + __version__, help="показать версию и выйти")
     ap.add_argument("media", nargs="?", metavar="ЗАПИСЬ", help="запись: видео или аудио в любом формате, который читает ffmpeg; с --reflag не нужна")
     ap.add_argument("--out", metavar="ПАПКА", help="папка для transcript.md и transcript.json (по умолчанию ./%s/<имя записи>)" % DEFAULT_OUT)
-    ap.add_argument("--lang", default="auto", metavar="ЯЗЫК", help="язык речи: en, ru или auto, чтобы определить по первым фрагментам (по умолчанию auto)")
+    ap.add_argument("--lang", default="auto", metavar="ЯЗЫК", help="язык речи: en, ru, код другого языка из README (de, fr, kk…) или auto, "
+                                                                "чтобы определить по первым фрагментам (по умолчанию auto)")
     ap.add_argument("--terms", default="", metavar="ТЕРМИНЫ", help="имена и термины из записи через запятую, например «Figma, After Effects»: "
                                                 "модели пишут их правильно, а пропуски отмечаются")
     ap.add_argument("--no-check", action="store_true", help="только основная модель: быстрее, но это черновик, ничего не отмечается")

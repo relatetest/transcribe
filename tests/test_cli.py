@@ -67,7 +67,7 @@ class UsageErrors(unittest.TestCase):
         self.assertIn("файл не найден", err)
 
     def test_unknown_language(self):
-        code, _, err = run_main("call.mov", "--lang", "de")
+        code, _, err = run_main("call.mov", "--lang", "ja")
         self.assertEqual(code, 2)
         self.assertIn("en, ru", err)
 

@@ -5,7 +5,7 @@
 
 # direct
 accelerate==1.15.0
-gigaam @ git+https://github.com/salute-developers/GigaAM.git@7447938d791c4f3e643386ee22c33777004293a5
+gigaam @ git+https://github.com/salute-developers/GigaAM.git@e9bbf2e773eedd217c6f0d3b89b9728c41332b7d
 huggingface-hub==2.4.0
 librosa==1.0.0
 numpy==2.5.4

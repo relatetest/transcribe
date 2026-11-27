@@ -205,12 +205,17 @@ def gigaam_files(spec, gigaam):
     root = os.path.expanduser(spec.get("cache") or "~/.cache/gigaam")
     version = spec["version"]
     want = spec.get("sha256") or {}
-    if not all(os.path.isfile(os.path.join(root, f)) for f in want) or not want:
+    missing = [f for f in want if not os.path.isfile(os.path.join(root, f))]
+    if missing or not want:
         print("  GigaAM %s: первый запуск, скачиваю веса с CDN разработчика (около %.2f ГБ)"
               % (version, spec.get("download_gb", 0.45)), flush=True)
         try:
-            gigaam._download_model(version, root)
-            gigaam._download_tokenizer(version, root)
+            if want:  # exactly the files the config pins: a v3 model has one tokenizer, a two-head model has two
+                for fname in missing:
+                    gigaam._download_file("%s/%s" % (gigaam._URL_DIR, fname), os.path.join(root, fname))
+            else:
+                gigaam._download_model(version, root)
+                gigaam._download_tokenizer(version, root)
         except AttributeError:
             raise ToolError("в установленном пакете gigaam нет функций загрузки: " + SETUP_HINT)
     if not want:
@@ -225,24 +230,38 @@ def gigaam_files(spec, gigaam):
     return root
 
 
-def run_gigaam(spec, paths):
-    """GigaAM v3 through its own package."""
+def run_gigaam(spec, paths, tag=None):
+    """GigaAM through its own package. Returns (texts, plain readings or None).
+
+    The v4 and multilingual_v2 models have two heads: «e2e» (punctuation, casing, digits) is the reading, «raw»
+    (plain words) is returned beside it because the e2e head leaves a word out now and then. tag is the language
+    tag of a multilingual model: «ru», «de», or a mix such as «ru-en»."""
     try:
         import gigaam
     except ImportError:
         raise ToolError("не установлен пакет gigaam: " + SETUP_HINT)
     root = gigaam_files(spec, gigaam)
-    model, dev = on_device(lambda d: gigaam.load_model(spec["version"], device=d, download_root=root))
-    texts = []
+    kw = {"language": tag} if tag and spec.get("multilingual") else {}
+    try:
+        model, dev = on_device(lambda d: gigaam.load_model(spec["version"], device=d, download_root=root, **kw))
+    except (ValueError, TypeError) as e:  # a gigaam package from before 1.0 knows neither the model nor the tag
+        raise ToolError("пакет gigaam не знает модель «%s» (%s): он старше этой версии transcribe. %s"
+                        % (spec["version"], e, SETUP_HINT[0].upper() + SETUP_HINT[1:]))
+    texts, raws = [], []
     for i, path in enumerate(paths):
         r = model.transcribe(path)
-        texts.append((r if isinstance(r, str) else getattr(r, "text", str(r))).strip())
+        if isinstance(r, dict):  # gigaam 1.0, a two-head model: {"e2e": result, "raw": result}
+            texts.append(r["e2e"].text.strip())
+            raws.append(r["raw"].text.strip())
+        else:  # v3 and older: one reading
+            texts.append((r if isinstance(r, str) else getattr(r, "text", str(r))).strip())
+            raws.append("")
         if (i + 1) % 20 == 0 or i + 1 == len(paths):
             print("  GigaAM %d/%d" % (i + 1, len(paths)), flush=True)
     record(spec, dev)
     del model
     free()
-    return texts
+    return texts, (raws if any(raws) else None)
 
 
 def run_granite(spec, paths, terms):
@@ -273,14 +292,16 @@ def run_granite(spec, paths, terms):
     return texts
 
 
-def run(spec, paths, language, terms):
+def run(spec, paths, language, terms, tag=None):
+    """(texts, the model's second plain reading or None). language is the name Qwen3-ASR takes («Russian»),
+    tag is the language tag a multilingual GigaAM takes («ru-en»)."""
     engine = spec["engine"]
     if engine == "qwen3-asr":
-        return run_qwen(spec, paths, language, terms)[0]
+        return run_qwen(spec, paths, language, terms)[0], None
     if engine == "gigaam":
-        return run_gigaam(spec, paths)
+        return run_gigaam(spec, paths, tag)
     if engine == "granite-speech":
-        return run_granite(spec, paths, terms)
+        return run_granite(spec, paths, terms), None
     raise ToolError("движок «%s» не распознаёт речь" % engine)
 
 
@@ -316,12 +337,17 @@ def transcribe(media, cfg, lang, terms, crosscheck=True):
         primary_spec = models[route["primary"]]
         check_spec = models[route["crosscheck"]] if crosscheck and route.get("crosscheck") else None
         name = route.get("name")
-        primary = run(primary_spec, paths, name, terms_text)
-        check = run(check_spec, paths, name, terms_text) if check_spec else None
+        tag = route.get("gigaam_language") or lang
+        primary, raw = run(primary_spec, paths, name, terms_text, tag)
+        check = run(check_spec, paths, name, terms_text, tag)[0] if check_spec else None
     finally:
         shutil.rmtree(work, ignore_errors=True)
 
     rows = [{"start": s, "end": e, "speaker": spk, "text": p} for (s, e, spk), p in zip(chunks, primary)]
+    if raw is not None:  # the primary's own plain reading; it is the text when the formatted head wrote nothing
+        for r, w in zip(rows, raw):
+            r["raw"] = w
+            r["text"] = r["text"] or w
     if check is not None:
         for r, c in zip(rows, check):
             r["check"] = c
@@ -333,5 +359,7 @@ def transcribe(media, cfg, lang, terms, crosscheck=True):
             "tool_version": __version__,
             "revisions": {label(s): s.get("revision") or s.get("sha256") for s in used},
             "devices": dict(USAGE)}
+    if primary_spec.get("multilingual"):
+        meta["primary_language"] = tag
     meta["flagged"] = flag(rows, terms, check is not None)
     return meta, rows

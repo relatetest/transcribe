@@ -45,7 +45,7 @@ def check(cfg, path="models.json"):
         if engine in HF_ENGINES and not spec.get("repo"):
             bad("у модели «%s» нет «repo» (имя на Hugging Face)" % key)
         if engine == "gigaam" and not spec.get("version"):
-            bad("у модели «%s» нет «version» (например v3_e2e_rnnt)" % key)
+            bad("у модели «%s» нет «version» (например multilingual_v2_rnnt)" % key)
 
     def model(key, role, engines):
         if key not in models:
@@ -59,6 +59,10 @@ def check(cfg, path="models.json"):
         model(spec["primary"], "languages.%s.primary" % code, ASR_ENGINES)
         if spec.get("crosscheck"):
             model(spec["crosscheck"], "languages.%s.crosscheck" % code, ASR_ENGINES)
+        tag = spec.get("gigaam_language")
+        if tag is not None and (not isinstance(tag, str) or not models[spec["primary"]].get("multilingual")):
+            bad("у языка «%s» задан «gigaam_language», а его основная модель не многоязычная GigaAM "
+                "(«multilingual»: true)" % code)
     if cfg.get("default_language") not in langs:
         bad("«default_language» должен быть одним из языков: %s" % ", ".join(langs))
     model(cfg.get("diarization"), "diarization", {"nemotron-diarization"})
@@ -66,7 +70,7 @@ def check(cfg, path="models.json"):
 
 
 def label(spec):
-    """How a model is named in the transcript: its Hugging Face repo, or «GigaAM v3_e2e_rnnt»."""
+    """How a model is named in the transcript: its Hugging Face repo, or «GigaAM multilingual_v2_rnnt»."""
     if spec["engine"] == "gigaam":
         return "salute-developers/GigaAM " + spec["version"]
     return spec["repo"]
