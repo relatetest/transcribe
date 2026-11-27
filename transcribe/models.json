@@ -1,167 +1,25 @@
 {
- "about": "The speech-to-text stack of this tool, chosen per language. Change models here or pass your own file with --config. Every Hugging Face model is pinned to a commit (revision); GigaAM is pinned by the SHA-256 of its files.",
- "checked": "2026-11-04 against the Hugging Face Open ASR Leaderboard (English, 2026-11-02), Artificial Analysis AA-WER, a 300-recording Russian benchmark (TypeWhisper), a Russian meeting benchmark (Habr, 2026-10-17) and the model cards; 2026-11-27: the model cards of ai-sage/GigaAM-v4 and ai-sage/GigaAM-Multilingual-v2 (both released that day) and the GigaAM repository at gigaam 1.0.0",
- "calibration": "a 14:40 English studio call: 108 chunks split at speaker changes, 52 flagged with the differing words, the flags fell on the real errors; 4 speakers kept apart, including a voice-over; the context list echoed once on a music-only chunk (caught as echo); both models agreed on two wrong words, so agreement is not proof. Russian: on GigaAM's public samples --lang auto picked ru, GigaAM was exact where Qwen3-ASR made three errors, and on a 71 s sample the flags fell on the real error spots. 2026-11-27, Russian: GigaAM v3, v4 and Multilingual-v2 read the same 110 chunks of two Russian studio recordings (9 and 14 minutes). Nobody listened, so the measure is the share of words that differ from the Qwen3-ASR reading: v3 12.3 % and 14.1 %, v4 9.9 % and 11.0 %, Multilingual-v2 with the tag «ru» 9.2 % and 10.4 %, with «ru-en» 8.8 % and 10.7 %. Words the plain head heard and the formatted head left out: v4 15 and 14, Multilingual-v2 8 and 7, the same with a full-precision encoder. Latin words written: v4 5 and 10, Multilingual-v2 «ru» none, «ru-en» 17 and 32. An English sentence inside one of the recordings: v4 and Multilingual-v2 «ru-en» exact, «ru» empty, v3 noise",
- "review_every": "3 months: re-read the leaderboards, update the models and their revisions here",
- "default_language": "en",
- "language_detection": "qwen3-asr",
- "diarization": "nemotron-diarization",
- "languages_note": "«name» is the language name Qwen3-ASR takes and answers with: only languages that have it take part in --lang auto. «gigaam_language» is the tag a multilingual GigaAM gets instead of the language code. A cross-check is set only where Qwen3-ASR is within about 3 WER points of GigaAM Multilingual-v2 on its card; elsewhere a second reading would flag nearly every chunk. Only en and ru were run on real recordings; the other 19 come from the model card",
- "languages": {
-  "en": {
-   "name": "English",
-   "primary": "qwen3-asr",
-   "crosscheck": "granite-speech"
+ "about": "The two models this tool runs, both pinned: GigaAM by the SHA-256 of its files, the Hugging Face model by a commit. Change models here.",
+ "checked": "2026-11-27: GigaAM Multilingual-v2 and GigaAM-v4 (both released that day) against the Qwen3-ASR + Granite Speech pair of 0.x. English: 117 chunks, 24 minutes of speech from two public interviews; of the 4603 words Qwen3-ASR and Granite both wrote, the Multilingual-v2 reading with the tag «ru-en» did not have 3.5 % (its plain reading 2.7 %), with «auto» 5.2 %, GigaAM-v4 4.1 % (3.1 %). Russian: 110 chunks of two studio recordings; the words of Multilingual-v2 «ru-en» differed from the Qwen3-ASR reading in 8.8 % and 10.7 % of cases, GigaAM-v4 in 9.9 % and 11.0 %. An English sentence inside one of the Russian recordings: «ru-en» exact, «ru» empty. Nobody listened to any recording, so these are not error rates",
+ "review_every": "3 months: re-read the model cards and leaderboards",
+ "asr": {
+  "version": "multilingual_v2_rnnt",
+  "language": "ru-en",
+  "source": "https://cdn.chatwm.opensmodel.sberdevices.ru/GigaAM (the gigaam package's own download)",
+  "sha256": {
+   "multilingual_v2_rnnt.ckpt": "dc962fb3c9f975bf3add59820a516256aa6f8dac29d4d2274120f6b2df360464",
+   "multilingual_v2_rnnt_e2e_tokenizer.model": "3b049685e51a893350452f31613b47f4bd7640857f53facdf32266de82df3c0a",
+   "multilingual_v2_rnnt_raw_tokenizer.model": "c51fe228b747218891e3facdaeda12957065f4238452c377f38f76d3c2d4c423"
   },
-  "ru": {
-   "name": "Russian",
-   "primary": "gigaam-multilingual",
-   "gigaam_language": "ru-en",
-   "crosscheck": "qwen3-asr"
-  },
-  "de": {
-   "name": "German",
-   "primary": "gigaam-multilingual",
-   "crosscheck": "qwen3-asr"
-  },
-  "fr": {
-   "name": "French",
-   "primary": "gigaam-multilingual",
-   "crosscheck": "qwen3-asr"
-  },
-  "es": {
-   "name": "Spanish",
-   "primary": "gigaam-multilingual",
-   "crosscheck": "qwen3-asr"
-  },
-  "it": {
-   "name": "Italian",
-   "primary": "gigaam-multilingual",
-   "crosscheck": "qwen3-asr"
-  },
-  "nl": {
-   "name": "Dutch",
-   "primary": "gigaam-multilingual",
-   "crosscheck": "qwen3-asr"
-  },
-  "pt": {
-   "name": "Portuguese",
-   "primary": "gigaam-multilingual",
-   "crosscheck": "qwen3-asr"
-  },
-  "pl": {
-   "name": "Polish",
-   "primary": "gigaam-multilingual"
-  },
-  "ro": {
-   "name": "Romanian",
-   "primary": "gigaam-multilingual"
-  },
-  "be": {
-   "primary": "gigaam-multilingual"
-  },
-  "kk": {
-   "primary": "gigaam-multilingual"
-  },
-  "ky": {
-   "primary": "gigaam-multilingual"
-  },
-  "uz": {
-   "primary": "gigaam-multilingual"
-  },
-  "tt": {
-   "primary": "gigaam-multilingual"
-  },
-  "ba": {
-   "primary": "gigaam-multilingual"
-  },
-  "az": {
-   "primary": "gigaam-multilingual"
-  },
-  "hy": {
-   "primary": "gigaam-multilingual"
-  },
-  "ka": {
-   "primary": "gigaam-multilingual"
-  },
-  "tg": {
-   "primary": "gigaam-multilingual"
-  },
-  "tk": {
-   "primary": "gigaam-multilingual"
-  }
+  "license": "MIT",
+  "download_gb": 1.57,
+  "why": "chosen over GigaAM-v4: one model for Russian and English that reads them a little closer to the references (see «checked»), three times the download. «language» is the tag the model gets: a mix of Russian and English, so English names inside Russian speech come out in Latin. 776M params; punctuation, casing and digits built in. On an i9-14900K it read 8.9 minutes of speech in 37 s, the same as an RTX 4080"
  },
- "models": {
-  "qwen3-asr": {
-   "engine": "qwen3-asr",
-   "repo": "Qwen/Qwen3-ASR-1.7B-hf",
-   "revision": "bcd2b5b7f32b480ab5790554cfa8347f246a14f3",
-   "license": "Apache-2.0",
-   "download_gb": 4.09,
-   "why": "English primary: the most accurate open English model that fits a 16 GB GPU shared with After Effects (Open ASR average WER 6.14, second among open models); free-form context biasing. Russian cross-check: writes Latin terms in Latin and takes the context list"
-  },
-  "granite-speech": {
-   "engine": "granite-speech",
-   "repo": "ibm-granite/granite-speech-5.0-2b",
-   "revision": "981601698173ac1a71fe6838b127d8e54f8cf682",
-   "license": "Apache-2.0",
-   "download_gb": 4.63,
-   "why": "English cross-check: another architecture and training set (Open ASR 6.59, released 2026-10-20) with keyword biasing; where the two disagree, the chunk is flagged for listening"
-  },
-  "gigaam-multilingual": {
-   "engine": "gigaam",
-   "version": "multilingual_v2_rnnt",
-   "multilingual": true,
-   "source": "https://cdn.chatwm.opensmodel.sberdevices.ru/GigaAM (the gigaam package's own download)",
-   "sha256": {
-    "multilingual_v2_rnnt.ckpt": "dc962fb3c9f975bf3add59820a516256aa6f8dac29d4d2274120f6b2df360464",
-    "multilingual_v2_rnnt_e2e_tokenizer.model": "3b049685e51a893350452f31613b47f4bd7640857f53facdf32266de82df3c0a",
-    "multilingual_v2_rnnt_raw_tokenizer.model": "c51fe228b747218891e3facdaeda12957065f4238452c377f38f76d3c2d4c423"
-   },
-   "license": "MIT",
-   "download_gb": 1.57,
-   "why": "Russian primary and the primary of 19 more languages: 21 languages with the language given as a tag; on its card 2.30 % WER on Russian against Whisper large-v3's 4.81 % and Qwen3-ASR's 6.05 %, and the lowest WER of the open models on every one of its languages except English; closer to the cross-check than GigaAM-v4 and v3 on two studio recordings (see «calibration»); punctuation, casing and digits built in; 776M params, 1.7 GB of GPU memory at its peak. For Russian the tag is «ru-en»: English names inside Russian speech come out in Latin and an English sentence is read as English",
-   "weak": "names are still written by ear: the context list reaches the text only through the cross-check. The formatted reading leaves a word out now and then (7-8 per recording of 9-14 minutes): the plain reading of every chunk is kept in transcript.json as «raw»"
-  },
-  "gigaam-v4": {
-   "engine": "gigaam",
-   "version": "v4_rnnt",
-   "source": "https://cdn.chatwm.opensmodel.sberdevices.ru/GigaAM (the gigaam package's own download)",
-   "sha256": {
-    "v4_rnnt.ckpt": "3b44d3f09af3619e5a36efa86debc2807158e077457d41f683b9155ca7bd5f19",
-    "v4_rnnt_e2e_tokenizer.model": "f547bcb38e071694ef1ddb25d9d40c86b4ab88cd0b16ab9fd52f27dd52c48e39",
-    "v4_rnnt_raw_tokenizer.model": "dcbe2598d1b374065091832970593a06065d498a43fbb1787de73e180d0556bc"
-   },
-   "license": "MIT",
-   "download_gb": 0.49,
-   "why": "not used by default; for your own --config: Russian and English, 238M params, about 0.5 GB of GPU memory, a third of the size of Multilingual-v2 and nearly as close to the cross-check, but its formatted reading left out twice as many words and it writes fewer English names in Latin"
-  },
-  "gigaam": {
-   "engine": "gigaam",
-   "version": "v3_e2e_rnnt",
-   "source": "https://cdn.chatwm.opensmodel.sberdevices.ru/GigaAM (the gigaam package's own download)",
-   "sha256": {
-    "v3_e2e_rnnt.ckpt": "f60c62fe45902d967000770a12f260de7c5ac4d4b8e5e852f1df8c548e3958b5",
-    "v3_e2e_rnnt_tokenizer.model": "828c12c991019eef952a960661f25a92d6ad279591e2ea466b4aeddf1d20a18a"
-   },
-   "license": "MIT",
-   "download_gb": 0.45,
-   "why": "not used by default; the Russian primary of 0.1.0, kept for your own --config. Russian only, keeps the fillers; 240M params",
-   "weak": "English names and terms inside Russian speech come out phonetically in Cyrillic («Фигма», «афтер эффектс»): the context list fixes them only through the cross-check"
-  },
-  "nemotron-diarization": {
-   "engine": "nemotron-diarization",
-   "repo": "nvidia/Nemotron-3-Diarization",
-   "revision": "f667ed73aee57d40cc39428eb768b4fd87a0a29e",
-   "license": "see the model card",
-   "download_gb": 0.4,
-   "why": "who spoke when, up to 8 speakers, open weights (2026-09-23), 100M params; lower DER than pyannote Community-1 in a 132-recording comparison (English 10.3 % vs 15.2 %, Russian 4.4 %)"
-  }
- },
- "not_used": {
-  "whisper / faster-whisper": "whisper-large-v3 is 41st on the Open ASR Leaderboard (2026-11) and behind GigaAM on Russian",
-  "nvidia/NVIDIA-Nemotron-3.5-Transcribe-30B-A4B": "the best open model (2026-10-28; speakers and context lists built in) but needs 32 GB of VRAM or more, or a community 2-bit GGUF that is tight on 16 GB; revisit when either changes",
-  "cohere-transcribe-03-2026": "no Russian, no timestamps",
-  "GigaAM multilingual (the first line, 2026-06, charwise CTC)": "superseded by Multilingual-v2, the Russian primary since 0.2.0"
+ "speakers": {
+  "repo": "nvidia/Nemotron-3-Diarization",
+  "revision": "f667ed73aee57d40cc39428eb768b4fd87a0a29e",
+  "license": "see the model card",
+  "download_gb": 0.4,
+  "why": "who spoke when, up to 8 speakers, open weights, 100M params; a few seconds on a processor for a 10-minute recording"
  }
 }

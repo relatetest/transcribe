@@ -4,8 +4,6 @@ import os
 
 from . import __version__
 
-MAX_DIFFS = 8  # differences listed per flagged chunk in transcript.md; transcript.json keeps all
-
 
 def ts(t):
     """65.25 → «01:05.2»"""
@@ -13,36 +11,18 @@ def ts(t):
     return "%02d:%04.1f" % (int(m), s)
 
 
-def read(out):
-    with open(os.path.join(out, "transcript.json"), encoding="utf-8") as f:
-        d = json.load(f)
-    return d["meta"], d["chunks"]
-
-
 def markdown(meta, rows):
     md = ["# Расшифровка: %s" % os.path.basename(meta["media"]), "",
-          "Язык **%s** · основная модель `%s` · проверочная `%s` · спикеры `%s` · %s (transcribe %s)." %
-          (meta["language"], meta["primary"], meta["crosscheck"] or "—", meta["diarization"], meta["made"],
-           meta.get("tool_version", __version__)),
+          "Распознавание `%s` · спикеры `%s` · %s (transcribe %s)." %
+          (meta["asr"], meta["diarization"], meta["made"], meta.get("tool_version", __version__)),
           "",
-          "Спикеры подписаны S1, S2… в порядке появления: имён модели не знают.", ""]
-    if meta["crosscheck"] is None:
-        md += ["**Черновик:** работала только основная модель, ничего не сверялось.", ""]
-    else:
-        md += ["**Отмечено ⚑: %d из %d фрагментов.** Там модели написали разные слова (каждое расхождение указано) "
-               "или термин услышала только проверочная модель. Прослушайте эти секунды, прежде чем цитировать. "
-               "Где модели совпали, ошибиться могли обе." % (meta["flagged"], len(rows)), ""]
+          "Спикеры подписаны S1, S2… в порядке появления: имён модель не знает. Текст сделала одна модель, на слух "
+          "его никто не проверял: перед тем как цитировать, переслушайте это место.", ""]
     cur = None
     for r in rows:
         head = "**[%s] %s:** " % (ts(r["start"]), r["speaker"]) if r["speaker"] != cur else "[%s] " % ts(r["start"])
         cur = r["speaker"]
-        line = head + (r["text"] or "…")
-        if r.get("flag"):
-            diffs = "; ".join("«%s» ↔ «%s»" % (x or "—", y or "—") for x, y in r["spans"][:MAX_DIFFS])
-            line += "  \n  ⚑ %s–%s · основная ↔ проверочная: %s" % (ts(r["start"]), ts(r["end"]), diffs or "—")
-            if r.get("terms_missing"):
-                line += " · термины услышала только проверочная: " + ", ".join(r["terms_missing"])
-        md += [line, ""]
+        md += [head + (r["text"] or "…"), ""]
     return "\n".join(md)
 
 

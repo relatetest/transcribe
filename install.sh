@@ -3,29 +3,26 @@
 #
 #   bash install.sh                  # into ~/transcribe
 #   bash install.sh --dir PATH       # somewhere else
-#   bash install.sh --cpu            # the CPU build of torch (Linux; macOS has no CUDA anyway)
 #   bash install.sh --no-tools       # do not install git, ffmpeg or uv: stop and say which one is missing
 #
 # 1. Checks git, ffmpeg and uv; on macOS installs the missing ones with Homebrew.
 # 2. Clones https://github.com/relatetest/transcribe at the release tag below, or switches a folder it already
 #    cloned to that tag.
 # 3. Runs scripts/setup.sh there: a Python 3.12 environment in .venv with the pinned packages.
-# Model weights are not downloaded here: they come on the first run of transcribe (about 10.7 GB).
+# Model weights are not downloaded here: they come on the first run of transcribe (about 2 GB).
 # Running the file again is safe: it changes only what differs.
 set -euo pipefail
 
-tag="v0.3.0"  # the release this file installs; tests/test_install.py keeps it equal to the package version
+tag="v1.0.0"  # the release this file installs; tests/test_install.py keeps it equal to the package version
 repo="https://github.com/relatetest/transcribe.git"
 dir="$HOME/transcribe"
-cpu=0
 tools=1
 while [ $# -gt 0 ]; do
   case "$1" in
     --dir) dir="$2"; shift 2 ;;
-    --cpu) cpu=1; shift ;;
     --no-tools) tools=0; shift ;;
-    -h|--help) sed -n '2,14p' "$0"; exit 0 ;;
-    *) echo "Неизвестный параметр: $1 (есть --dir PATH, --cpu и --no-tools)" >&2; exit 2 ;;
+    -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
+    *) echo "Неизвестный параметр: $1 (есть --dir PATH и --no-tools)" >&2; exit 2 ;;
   esac
 done
 
@@ -71,12 +68,10 @@ else
   step "Скачиваю transcribe $tag в $dir" git clone --quiet --branch "$tag" "$repo" "$dir"
 fi
 
-setup_args=()
-[ "$cpu" = 1 ] && setup_args+=(--cpu)
-step "Окружение Python и пакеты (несколько минут)" bash "$dir/scripts/setup.sh" ${setup_args[@]+"${setup_args[@]}"}
+step "Окружение Python и пакеты (несколько минут)" bash "$dir/scripts/setup.sh"
 
 echo
 echo "transcribe $tag установлен: $dir"
 echo "Расшифровать запись:"
-echo "  \"$dir/.venv/bin/transcribe\" запись.mp4 --lang auto"
-echo "При первом запуске скачаются веса моделей, около 10,7 ГБ. Запись и текст никуда не отправляются."
+echo "  \"$dir/.venv/bin/transcribe\" запись.mp4"
+echo "При первом запуске скачаются веса моделей, около 2 ГБ. Запись и текст никуда не отправляются."

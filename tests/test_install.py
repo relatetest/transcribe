@@ -32,6 +32,11 @@ class Installers(unittest.TestCase):
         with open(os.path.join(ROOT, "install.ps1"), "rb") as f:
             self.assertEqual(f.read(3), b"\xef\xbb\xbf")
 
+    def test_torch_is_the_processor_build(self):
+        for name in ("scripts/setup.ps1", "scripts/setup.sh"):
+            self.assertIn("https://download.pytorch.org/whl/cpu", text(name), name)
+            self.assertNotIn("cu128", text(name), name)
+
     def test_they_only_fetch_this_repository(self):
         for name in ("install.ps1", "install.sh"):
             urls = set(re.findall(r"https?://[^\s\"')]+", text(name)))

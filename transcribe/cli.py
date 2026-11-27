@@ -1,23 +1,20 @@
-"""transcribe: the one command. Exit codes: 0 transcript written, 1 the run failed, 2 wrong arguments or config."""
+"""transcribe: the one command. Exit codes: 0 transcript written, 1 the run failed, 2 wrong arguments."""
 import argparse
-import datetime
 import os
 import sys
 import traceback
 
-from . import __version__, config
-from .compare import flag, parse_terms, unflag
+from . import __version__
 
 DEFAULT_OUT = "transcribe-out"
 
 EXAMPLES = """\
 примеры:
-  transcribe call.mov --lang en --terms "Figma, After Effects, Relate"
-  transcribe interview.mp4 --lang ru --out ./interview-text
-  transcribe --reflag --out ./interview-text
+  transcribe call.mp4
+  transcribe interview.mov --out ./interview-text
 
 Результат: <out>/transcript.md для чтения и <out>/transcript.json со всеми фрагментами.
-Фрагменты, где модели разошлись, отмечены ⚑: их нужно прослушать, прежде чем цитировать."""
+Язык указывать не нужно: модель понимает русский и английский, в том числе вперемешку."""
 
 
 class UsageError(Exception):
@@ -37,59 +34,28 @@ class Parser(argparse.ArgumentParser):
 
 def build_parser():
     ap = Parser(prog="transcribe", formatter_class=RuHelp, add_help=False, epilog=EXAMPLES,
-                description="Расшифровка созвонов и видео на своём компьютере.\n"
-                            "Запись режется на фрагменты до 22 с по паузам, каждый фрагмент распознают две модели,\n"
-                            "спикеры подписываются S1, S2…; фрагменты, где модели разошлись или пропали термины,\n"
-                            "отмечаются для прослушивания.")
+                description="Расшифровка созвонов и видео на русском и английском на своём компьютере.\n"
+                            "Видеокарта не нужна. Спикеры подписываются S1, S2…")
     ap._positionals.title = "аргументы"
     ap._optionals.title = "параметры"
     ap.add_argument("-h", "--help", action="help", help="показать эту справку и выйти")
     ap.add_argument("--version", action="version", version="transcribe " + __version__, help="показать версию и выйти")
-    ap.add_argument("media", nargs="?", metavar="ЗАПИСЬ", help="запись: видео или аудио в любом формате, который читает ffmpeg; с --reflag не нужна")
+    ap.add_argument("media", nargs="?", metavar="ЗАПИСЬ", help="запись: видео или аудио в любом формате, который читает ffmpeg")
     ap.add_argument("--out", metavar="ПАПКА", help="папка для transcript.md и transcript.json (по умолчанию ./%s/<имя записи>)" % DEFAULT_OUT)
-    ap.add_argument("--lang", default="auto", metavar="ЯЗЫК", help="язык речи: en, ru, код другого языка из README (de, fr, kk…) или auto, "
-                                                                "чтобы определить по первым фрагментам (по умолчанию auto)")
-    ap.add_argument("--terms", default="", metavar="ТЕРМИНЫ", help="имена и термины из записи через запятую, например «Figma, After Effects»: "
-                                                "модели пишут их правильно, а пропуски отмечаются")
-    ap.add_argument("--no-check", action="store_true", help="только основная модель: быстрее, но это черновик, ничего не отмечается")
-    ap.add_argument("--reflag", action="store_true", help="пересчитать отметки в готовой папке --out без моделей и переписать оба файла")
-    ap.add_argument("--config", metavar="ФАЙЛ", help="свой файл моделей вместо встроенного transcribe/models.json")
     return ap
 
 
 def out_dir(a):
-    if a.out:
-        return a.out
-    if a.media:
-        return os.path.join(DEFAULT_OUT, os.path.splitext(os.path.basename(a.media))[0] or "transcript")
-    raise UsageError("укажите папку прошлого запуска: transcribe --reflag --out <папка>")
+    return a.out or os.path.join(DEFAULT_OUT, os.path.splitext(os.path.basename(a.media))[0] or "transcript")
 
 
-def reflag(out):
-    from . import report
-    if not os.path.isfile(os.path.join(out, "transcript.json")):
-        raise UsageError("в папке %s нет transcript.json: укажите в --out папку, куда transcribe уже писал" % out)
-    try:
-        meta, rows = report.read(out)
-    except (ValueError, KeyError) as e:
-        raise UsageError("%s/transcript.json не похож на результат transcribe: %s" % (out, e))
-    unflag(rows)
-    meta["flagged"] = flag(rows, meta.get("terms") or [], meta.get("crosscheck") is not None)
-    meta["reflagged"] = datetime.datetime.now().isoformat(timespec="seconds")
-    path = report.write(out, meta, rows)
-    print("отметки пересчитаны: %s · отмечено %d из %d" % (path, meta["flagged"], len(rows)), flush=True)
-
-
-def transcribe(a, out):
+def run(a):
     from . import pipeline, report
-    cfg = config.load(a.config)
-    if a.lang != "auto" and a.lang not in cfg["languages"]:
-        raise UsageError("язык «%s» не настроен; есть: %s или auto" % (a.lang, ", ".join(cfg["languages"])))
     if not os.path.isfile(a.media):
         raise UsageError("файл не найден: %s" % a.media)
-    meta, rows = pipeline.transcribe(a.media, cfg, a.lang, parse_terms(a.terms), crosscheck=not a.no_check)
-    path = report.write(out, meta, rows)
-    print("готово: %s · отмечено %d из %d" % (path, meta["flagged"], len(rows)), flush=True)
+    meta, rows = pipeline.transcribe(a.media)
+    path = report.write(out_dir(a), meta, rows)
+    print("готово: %s" % path, flush=True)
 
 
 def main(argv=None):
@@ -100,14 +66,11 @@ def main(argv=None):
             pass
     a = build_parser().parse_args(argv)
     try:
-        if a.reflag:
-            reflag(out_dir(a))
-        elif not a.media:
+        if not a.media:
             raise UsageError("укажите запись: transcribe <файл> [--out папка]. Справка: transcribe --help")
-        else:
-            transcribe(a, out_dir(a))
+        run(a)
         return 0
-    except (UsageError, config.ConfigError) as e:
+    except UsageError as e:
         print("transcribe: %s" % e, file=sys.stderr)
         return 2
     except KeyboardInterrupt:

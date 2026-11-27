@@ -7,14 +7,11 @@
   2. Clones https://github.com/relatetest/transcribe at the release tag below into -Dir,
      or switches a folder it already cloned to that tag.
   3. Runs scripts\setup.ps1 there: a Python 3.12 environment in .venv with the pinned packages.
-  Model weights are not downloaded here: they come on the first run of transcribe (about 10.7 GB).
+  Model weights are not downloaded here: they come on the first run of transcribe (about 2 GB).
   Running the file again is safe: it changes only what differs.
 
 .PARAMETER Dir
   Where to put transcribe. Default: the folder "transcribe" in the home folder.
-
-.PARAMETER Cpu
-  Install the CPU build of torch. Chosen automatically when nvidia-smi is not found.
 
 .PARAMETER NoTools
   Do not install git, ffmpeg or uv: stop and say which one is missing.
@@ -24,12 +21,11 @@
 #>
 param(
   [string]$Dir = "",
-  [switch]$Cpu,
   [switch]$NoTools
 )
 
 $ErrorActionPreference = "Stop"
-$Tag = "v0.3.0"  # the release this file installs; tests/test_install.py keeps it equal to the package version
+$Tag = "v1.0.0"  # the release this file installs; tests/test_install.py keeps it equal to the package version
 $Repo = "https://github.com/relatetest/transcribe.git"
 if (-not $Dir) { $Dir = Join-Path $HOME "transcribe" }
 
@@ -85,20 +81,12 @@ if (Test-Path (Join-Path $Dir ".git")) {
   Step "Скачиваю transcribe $Tag в $Dir" { git clone --quiet --branch $Tag $Repo $Dir }
 }
 
-if (-not $Cpu -and -not (Have "nvidia-smi")) {
-  Write-Host ""
-  Write-Host "Видеокарта NVIDIA не найдена: ставлю вариант для процессора. Расшифровка будет в разы медленнее." -ForegroundColor Yellow
-  $Cpu = $true
-}
-
 $Setup = Join-Path $Dir "scripts\setup.ps1"
-$SetupArgs = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $Setup)
-if ($Cpu) { $SetupArgs += "-Cpu" }
-Step "Окружение Python и пакеты (несколько минут)" { powershell @SetupArgs }
+Step "Окружение Python и пакеты (несколько минут)" { powershell -NoProfile -ExecutionPolicy Bypass -File $Setup }
 
 $Exe = Join-Path $Dir ".venv\Scripts\transcribe.exe"
 Write-Host ""
 Write-Host "transcribe $Tag установлен: $Dir"
 Write-Host "Расшифровать запись:"
-Write-Host "  & '$Exe' запись.mp4 --lang auto"
-Write-Host "При первом запуске скачаются веса моделей, около 10,7 ГБ. Запись и текст никуда не отправляются."
+Write-Host "  & '$Exe' запись.mp4"
+Write-Host "При первом запуске скачаются веса моделей, около 2 ГБ. Запись и текст никуда не отправляются."
